@@ -1,29 +1,131 @@
 ---
-title: "Untitled"
-output: html_document
-date: '2022-03-31'
+title: "Homework 1"
+author: "Haotian Xia(5069182)"
+date: "`r format(Sys.Date(), '%B %d, %Y')`"
+output:
+  html_document:
+    df_print: paged
+  pdf_document: default
+  pdf: default
 ---
 
-```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE)
+```{r setup, echo=FALSE}
+library(knitr)
+# set global chunk options: images will be 7x5 inches
+knitr::opts_chunk$set(fig.width=9, fig.height=8)
+options(digits = 4)
+
+
+## indents are for indenting r code as formatted text
+## They may need to be adjusted depending on your OS
+# if your output looks odd, increase or decrease indent
+indent1 = '    '
+indent2 = '        '
+indent3 = '            '
 ```
 
-## R Markdown
+Question 1:
 
-This is an R Markdown document. Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. For more details on using R Markdown see <http://rmarkdown.rstudio.com>.
+Supervised learning prediction is accurately predict future response given predictors. Unsupervised learning is no response variables. For Supervised learning, the responses are known and examples must be labeled. For Unsupervised learning, the responses are not known and examples are not labeled . 
 
-When you click the **Knit** button a document will be generated that includes both content as well as the output of any embedded R code chunks within the document. You can embed an R code chunk like this:
+Question2:
 
-```{r cars}
-summary(cars)
+Classification is the process of finding or discovering a model or function which helps in separating the data into multiple categorical classes. The response variable is an categorical varible(discrete values). Regression is the process of finding a model or function for distinguishing the data into continuous real values instead of using classes or discrete values. Again, Regression aims to predict a continuous output value, and Classification aims to predict which class (a discrete integer or categorical label) the input corresponds to. 
+
+Question3: 
+
+Regression model metrics: Mean Squared Error (MSE). Root Mean Squared Error (RMSE). 
+
+Classification model metrics: Confusion Matrix & Precision, Recall, and F-1 Score, ROC AUC. 
+
+Question4:
+
+DESCRIPTIVE: basically choose model to best visually emphasize a trend in data.
+
+Inferential models: it aims to find what features are significant.Aim is to test theories (Possibly) causal claims. State relationship between outcome & predictor(s)
+
+Predictive models: It chooses the best combo of features that fit best. Aim is to predict Y(response variable) with minimum reducible error. Not focused on hypothesis tests. (From lecture note)
+
+Question5:
+
+(1)A mechanistic model uses a theory to predict what will happen in the real world. It predicts future based on a theory. Empirically-driven studies real-world events to develop a theory. 
+The difference is mechanistic model Assume a parametric form for $f(i.e.\beta_0+\beta_1+⋯)$ and it won’t match true unknown f. Empirically-driven does not have assumptions about f. mechanistic model need to add more parameters to have more flexibility. Empirically-driven model have much more flexible by default. The similar thing is both of them will overfitting. 
+
+(2) the mechanistic is easier to understand since we have an assumption of f. So we know the actual function(data) relationship. It will give us higher interpretability. 
+
+(3) For the empirically-driven model, it is easier than mechanistic model in overfitting(Small train MSE, large test MSE, low bias and high variance) becuase empirically-driven model are more flexible while learning a target function. So when we want to do the empirically-driven model, we need to make sure we are not overfitting which means we do not train too complex f function. When we do mechanistic model, since we already assumed f function, it will either overfitting or underfitting(high bias, and low variance), so we need to add more variable or change our function assumption to find the best trade off between bias and variance. 
+
+Question6:
+
+the first question is predictive because we are trying to predict who they will vote based on their profile(predictor variables). we need an actual predicted result whether who will got the vete. 
+the second question is inferential because we are trying to test if the specific predictor variables(had personal contact with the candidate) is significant or not. 
+
+```{r input_lib}
+library(tidyverse)
+library(tidymodels)
+library(ISLR)
+library(ggplot2)
 ```
 
-## Including Plots
+```{r data}
+data<- mpg
+head(data)
+```
+EX1: we notice that the mpg 26 has the largest number of car among the dataset. following by mpg 17 and 29. We can deep dive into those cars that have mpg 26 or 17 or 29 to see if there are some similarity(such as years, class etc.) in each mpg group. By looking at the distribution, most cars can drive 15~29 miles per gallon. 
+```{r ex1}
+ggplot(data, aes(x=hwy)) + geom_histogram(binwidth=1)
+```
+EX2:we notice that cars have higher hwy have higher cty. By the blue trend line, there is an almost positive linear relationship. 
+```{r ex2}
+ggplot(data, aes(x=hwy, y=cty)) + geom_point() + geom_smooth()
 
-You can also embed plots, for example:
-
-```{r pressure, echo=FALSE}
-plot(pressure)
 ```
 
-Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
+EX3: dodge produced the most cars, Lincoin produced the least. 
+```{r ex3}
+library(dplyr)
+ggplot(mpg, aes(x=reorder(manufacturer,manufacturer,function(x)+length(x))))+
+  geom_bar(fill="steelblue") + labs(x = "Manufacturer")+ coord_flip()
+```
+
+EX4: We notice that cars have more number of cylinders(cyl) will have lower highway miles per gallon(hwy). In other words, with one gallon, less number of cylinders cars can be drived more miles than larger number of cylinders cars.  
+```{r ex4}
+ggplot(data, aes(x= cyl,y=hwy,group = cyl)) + 
+  geom_boxplot()
+
+```
+
+EX5: This chart shows that both cyl&displ and hwy&cty have positive correlations. These two positive correlations make sense to me. For cyl&displ, according to the website, cars that have more cylinders suppose to have higher engine displacement. For hwy&cty, both variable measures how many miles a car can drive(driving range). The only difference is one on the highway, and the other in the city. they should have similar attributes and results.
+cty&displ, cty&cyl,hwy&displ, and hwy&cyl are all have negative correlations. These also make sense to me. According to the website, more engine displacement cars have less driving range(more displ, less hwy&cty). Also, more cylinders cars have less driving range. 
+```{r ex5}
+library(corrplot)
+M = dplyr::select_if(data,is.numeric) 
+df = subset(M, select=c('displ','cyl','cty','hwy'))
+corrplot(cor(df),method = 'number', order = 'AOE', type = 'lower', diag = FALSE)
+```
+
+EX6:
+```{r ex6}
+library(ggthemes)
+
+#p <- ggplot(data= mpg, aes(x=class, y =hwy)) + geom_jitter(alpha = 0.5,height = 0)+ geom_boxplot(alpha = 0.2) + coord_flip() + theme_gdocs()
+mpg %>%
+ ggplot() + geom_boxplot(mapping = aes(x = class, y = hwy)) + geom_jitter(mapping = aes(x = class, y = hwy), alpha = 0.25, height = 0) + theme_gdocs() + 
+  labs(x = "Vehicle Class", y = "Highway MPG")+
+  coord_flip()
+
+```
+
+EX7:
+```{r ex7}
+mpg %>% 
+  ggplot(aes(x=class, y=hwy, fill=factor(drv))) +
+  geom_boxplot() 
+```
+
+EX8:
+```{r ex8}
+ggplot(mpg,aes(x = displ, y = hwy,fill=drv,color =drv)) +
+  geom_point()+
+  geom_smooth(aes(group=drv,linetype = drv), color = "blue",se=FALSE,)
+```
