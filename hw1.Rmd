@@ -71,8 +71,12 @@ library(ggplot2)
 data<- mpg
 head(data)
 ```
-EX1: we notice that the mpg 26 has the largest number of car among the dataset. following by mpg 17 and 29. We can deep dive into those cars that have mpg 26 or 17 or 29 to see if there are some similarity(such as years, class etc.) in each mpg group. By looking at the distribution, most cars can drive 15~29 miles per gallon. 
+EX1: 
+From first graph, we notice that the highest frequency of hwy (around 80) is in 25~30 group. For groups have higher hwy(group 30~45) or lower hwy(10~15) have lower frequency. 
+
+From second graph (binwidth=1), we notice that the mpg 26 has the largest number of car among the dataset. following by mpg 17 and 29. We can deep dive into those cars that have mpg 26 or 17 or 29 to see if there are some similarity(such as years, class etc.) in each mpg group. By looking at the distribution, most cars can drive 15~29 miles per gallon. 
 ```{r ex1}
+hist(data$hwy)
 ggplot(data, aes(x=hwy)) + geom_histogram(binwidth=1)
 ```
 EX2:we notice that cars have higher hwy have higher cty. By the blue trend line, there is an almost positive linear relationship. 
@@ -95,13 +99,15 @@ ggplot(data, aes(x= cyl,y=hwy,group = cyl)) +
 
 ```
 
-EX5:I deleted all categorical variable in this questions. Here, I consider year is also a categorical variable. I feel it does not make sense to find the covariance&correlation between categorical variable & numerical variable.
+EX5:I deleted all categorical variable in this questions except year. I feel it does not make sense to find the covariance&correlation between categorical variable & numerical variabl besides the categorical variable has a useful numerical code for them ( not just random dummy variable, for example: the variable year has meaningful ordered numerical code here.)
 This chart shows that both cyl&displ and hwy&cty have positive correlations. These two positive correlations make sense to me. For cyl&displ, according to the website, cars that have more cylinders suppose to have higher engine displacement. For hwy&cty, both variable measures how many miles a car can drive(driving range). The only difference is one on the highway, and the other in the city. they should have similar attributes and results.
 cty&displ, cty&cyl,hwy&displ, and hwy&cyl are all have negative correlations. These also make sense to me. According to the website, more engine displacement cars have less driving range(more displ, less hwy&cty). Also, more cylinders cars have less driving range. 
+
+The result is a little bit surprised to me. Since before I draw the corr chart, I feel there should be some relationship between year&hwy, year&displ. year&cyl. For example, I assume new cars will have lower displ, But the result shows the corralation between them is not really significant. Same with cyl and hwy.
 ```{r ex5}
 library(corrplot)
 M = dplyr::select_if(data,is.numeric) 
-df = subset(M, select=c('displ','cyl','cty','hwy'))
+df = subset(M, select=c('year','displ','cyl','cty','hwy'))
 corrplot(cor(df),method = 'number', order = 'AOE', type = 'lower', diag = FALSE)
 ```
 
