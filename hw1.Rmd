@@ -95,7 +95,8 @@ ggplot(data, aes(x= cyl,y=hwy,group = cyl)) +
 
 ```
 
-EX5: This chart shows that both cyl&displ and hwy&cty have positive correlations. These two positive correlations make sense to me. For cyl&displ, according to the website, cars that have more cylinders suppose to have higher engine displacement. For hwy&cty, both variable measures how many miles a car can drive(driving range). The only difference is one on the highway, and the other in the city. they should have similar attributes and results.
+EX5:I deleted all categorical variable in this questions. Here, I consider year is also a categorical variable. I feel it does not make sense to find the covariance&correlation between categorical variable & numerical variable.
+This chart shows that both cyl&displ and hwy&cty have positive correlations. These two positive correlations make sense to me. For cyl&displ, according to the website, cars that have more cylinders suppose to have higher engine displacement. For hwy&cty, both variable measures how many miles a car can drive(driving range). The only difference is one on the highway, and the other in the city. they should have similar attributes and results.
 cty&displ, cty&cyl,hwy&displ, and hwy&cyl are all have negative correlations. These also make sense to me. According to the website, more engine displacement cars have less driving range(more displ, less hwy&cty). Also, more cylinders cars have less driving range. 
 ```{r ex5}
 library(corrplot)
