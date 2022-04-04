@@ -126,7 +126,7 @@ mpg %>%
 EX7:
 ```{r ex7}
 mpg %>% 
-  ggplot(aes(x=class, y=hwy, fill=factor(drv))) +
+  ggplot(aes(x=class, y=hwy, fill=drv)) +
   geom_boxplot() 
 ```
 
